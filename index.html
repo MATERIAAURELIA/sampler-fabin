@@ -37,6 +37,9 @@
   <p>Earth Harmony Sound & Wellness · Marcus Fung · 8 tracks</p>
 </header>
 <main>
+<div style="text-align:center;margin-bottom:20px;">
+  <button id="playAllBtn" onclick="playAll()" style="background:#d4a843;color:#111;border:none;border-radius:20px;padding:10px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;">▶ Play All</button>
+</div>
 
   <div class="track">
     <div class="track-thumb">
@@ -190,6 +193,43 @@
 
 <script>
 let currentAudio = null, currentBtn = null, animFrame = null;
+const trackOrder = ['e6018b9f9128','fedbb725cc59','e50e8605854f','5b90c8bb3611','501bde2e377d','b38a8dcb50f8','f7daa5b97747','8a56ef3a7d23'];
+let playAllMode = false;
+let playAllIndex = 0;
+
+function playAll() {
+  const btn = document.getElementById('playAllBtn');
+  if (playAllMode) {
+    playAllMode = false;
+    btn.textContent = '▶ Play All';
+    if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+    if (currentBtn) { currentBtn.textContent = '▶ Play'; currentBtn.classList.remove('playing'); }
+    return;
+  }
+  playAllMode = true;
+  playAllIndex = 0;
+  btn.textContent = '⏹ Stop All';
+  playNextInQueue();
+}
+
+function playNextInQueue() {
+  if (!playAllMode || playAllIndex >= trackOrder.length) {
+    playAllMode = false;
+    document.getElementById('playAllBtn').textContent = '▶ Play All';
+    return;
+  }
+  const id = trackOrder[playAllIndex];
+  const btn = document.querySelector(`[onclick*="${id}"]`);
+  if (btn) togglePlay(id, btn);
+  const audio = document.getElementById('a-' + id);
+  audio.onended = () => {
+    btn.textContent = '▶ Play';
+    btn.classList.remove('playing');
+    document.getElementById('f-' + id).style.width = '0%';
+    playAllIndex++;
+    playNextInQueue();
+  };
+}
 
 function togglePlay(id, btn) {
   const audio = document.getElementById('a-' + id);
